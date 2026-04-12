@@ -208,3 +208,6 @@ __marimo__/
 
 # Windows OS files
 desktop.ini
+
+# Interview prep — local only, not for version control
+interview_prep/
