@@ -211,3 +211,7 @@ desktop.ini
 
 # Interview prep — local only, not for version control
 interview_prep/
+
+test.db
+.vscode/
+.vscode/*

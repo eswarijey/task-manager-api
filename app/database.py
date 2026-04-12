@@ -7,7 +7,7 @@ import os
 load_dotenv()
 
 # Get database URL from environment variable
-DATABASE_URL = os.getenv("DATABASE_URL")  
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create the database engine
 engine = create_engine(DATABASE_URL)
@@ -15,9 +15,11 @@ engine = create_engine(DATABASE_URL)
 # Create a session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 # Base class for all models
 class Base(DeclarativeBase):
     pass
+
 
 def get_db():
     db = SessionLocal()
