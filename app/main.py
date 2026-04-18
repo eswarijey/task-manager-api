@@ -1,5 +1,13 @@
 from fastapi import FastAPI
 from app.routers import auth, tasks, users
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="logs/app.log",
+)
+
 
 app = FastAPI(
     title="Task Manager API",
