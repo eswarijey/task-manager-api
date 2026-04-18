@@ -16,7 +16,7 @@ def create_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    db_task = Task(**task.model_dump(), user_id=1)  # user_id hardcoded for now
+    db_task = Task(**task.model_dump(), user_id=current_user.id)
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
@@ -28,7 +28,7 @@ def get_tasks(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return db.query(Task).all()
+    return db.query(Task).filter(Task.user_id == current_user.id).all()
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
@@ -37,7 +37,8 @@ def get_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    task = db.query(Task).filter(Task.id == task_id).first()
+    task = db.query(Task).filter(
+        Task.id == task_id, Task.user_id == current_user.id).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
@@ -50,7 +51,8 @@ def update_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    db_task = db.query(Task).filter(Task.id == task_id).first()
+    db_task = db.query(Task).filter(
+        Task.id == task_id, Task.user_id == current_user.id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
     for key, value in task.model_dump(exclude_unset=True).items():
@@ -66,7 +68,8 @@ def delete_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    db_task = db.query(Task).filter(Task.id == task_id).first()
+    db_task = db.query(Task).filter(
+        Task.id == task_id, Task.user_id == current_user.id).first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(db_task)
