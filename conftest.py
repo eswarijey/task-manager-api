@@ -29,3 +29,21 @@ def setup_database():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+
+@pytest.fixture
+def client():
+    with TestClient(app) as c:
+        # Create a test user
+        c.post("/users/", json={
+            "email": "test@example.com",
+            "username": "testuser",
+            "password": "testpass123"
+        })
+        # Login to get token
+        response = c.post("/auth/login", data={
+            "username": "test@example.com",
+            "password": "testpass123"
+        })
+        token = response.json()["access_token"]
+        c.headers.update({"Authorization": f"Bearer {token}"})
+        yield c
