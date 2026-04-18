@@ -6,6 +6,9 @@ from app.models.user import User
 from app.routers.auth import get_current_user
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 from typing import List
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
@@ -20,6 +23,7 @@ def create_task(
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
+    logger.info("Task created: id=%s user_id=%s", db_task.id, current_user.id)
     return db_task
 
 
@@ -37,9 +41,13 @@ def get_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    task = db.query(Task).filter(
-        Task.id == task_id, Task.user_id == current_user.id).first()
+    task = (
+        db.query(Task)
+        .filter(Task.id == task_id, Task.user_id == current_user.id)
+        .first()
+    )
     if not task:
+        logger.warning("Task not found: %s", task_id)
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
@@ -51,8 +59,11 @@ def update_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    db_task = db.query(Task).filter(
-        Task.id == task_id, Task.user_id == current_user.id).first()
+    db_task = (
+        db.query(Task)
+        .filter(Task.id == task_id, Task.user_id == current_user.id)
+        .first()
+    )
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
     for key, value in task.model_dump(exclude_unset=True).items():
@@ -68,10 +79,14 @@ def delete_task(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    db_task = db.query(Task).filter(
-        Task.id == task_id, Task.user_id == current_user.id).first()
+    db_task = (
+        db.query(Task)
+        .filter(Task.id == task_id, Task.user_id == current_user.id)
+        .first()
+    )
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
     db.delete(db_task)
     db.commit()
+    logger.info("Task deleted: id=%s user_id=%s", db_task.id, current_user.id)
     return {"message": "Task deleted successfully"}

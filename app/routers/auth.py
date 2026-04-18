@@ -11,6 +11,9 @@ from jose import jwt
 from sqlalchemy.orm import Session
 
 from app.models.user import User
+import logging
+
+logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
@@ -49,13 +52,15 @@ def login(
         db.query(User).filter(User.email == form_data.username).first()
     )
     if not existing_user:
+        logger.warning("Login failed - user not found: %s", form_data.username)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not verify_password(form_data.password, existing_user.hashed_password):
+        logger.warning("Login failed - wrong password: %s", form_data.username)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token(data={"sub": str(existing_user.id)})
-
+    logger.info("Login successful: %s", existing_user.email)
     return {"access_token": token, "token_type": "bearer"}
 
 
