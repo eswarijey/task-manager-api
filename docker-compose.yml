@@ -11,6 +11,8 @@ services:
       - tm_db
     environment:
       DATABASE_URL: ${DATABASE_URL_DOCKER}
+      SECRET_KEY: ${SECRET_KEY}
+
 
   tm_db:
     image: postgres:16
