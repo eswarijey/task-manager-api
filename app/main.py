@@ -15,9 +15,10 @@ app = FastAPI(
     description="A RESTful API for managing tasks",
 )
 
-app.include_router(users.router)
-app.include_router(tasks.router)
-app.include_router(auth.router)
+
+app.include_router(users.router, prefix="/api/v1")
+app.include_router(tasks.router, prefix="/api/v1")
+app.include_router(auth.router, prefix="/api/v1")
 
 
 @app.get("/health")
